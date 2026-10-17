@@ -68,7 +68,16 @@ Plasma、Konsole、Chromium、digiKam 仅支持 Linux，并要求导入 plasma-m
 
 Firefox 必须显式列出配置档名称，不扫描磁盘。所列名称会合并进 `programs.firefox.profiles`；未预先声明的名称也会成为 Home Manager 配置档。请为已有配置档填写实际路径，并在管理多个配置档时设置唯一的 ID 和默认配置档。样式表启用由 Home Manager 根据 `userChrome` 自动处理。
 
-Konsole 配置档固定由本模块生成，不提供配置档命名或接入外部配置档的选项。
+Konsole 通过 plasma-manager 的 `programs.konsole.profiles` 生成 `NixGruvboxLight`、`NixGruvboxDark` 配置档，默认字体为 `Monospace`。可以在同一配置档上声明字体和其他偏好，它们会在生成 INI 前合并：
+
+```nix
+programs.konsole.profiles = lib.genAttrs [ "NixGruvboxLight" "NixGruvboxDark" ] (_: {
+  font = { name = "Sarasa Mono SC"; size = 11; };
+  extraConfig.Scrolling.ScrollBarPosition = 2;
+});
+```
+
+上例需要在模块参数中引入 `lib`。配置档名称固定，以匹配 Konsole 的原生深浅切换设置。
 
 ```nix
 colorscheme.darktable = {

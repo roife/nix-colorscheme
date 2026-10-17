@@ -23,15 +23,18 @@ in {
       };
     };
   };
-  config = _: {
+  config = { options, ... }: {
     xdg.dataFile = lib.mkMerge (lib.mapAttrsToList (mode: palette: {
       "konsole/${names.${mode}}.colorscheme".text = render palette;
-      "konsole/${names.${mode}}.profile" = {
-        text = lib.generators.toINI { } {
-          General = { Name = names.${mode}; Parent = "FALLBACK/"; };
-          Appearance.ColorScheme = names.${mode};
-        };
-      };
     }) common.palettes);
+  } // lib.optionalAttrs (options.programs ? konsole) {
+    programs.konsole = {
+      enable = true;
+      profiles = lib.genAttrs (lib.attrValues names) (name: {
+        colorScheme = name;
+        # plasma-manager requires a font name; consumers can override this default.
+        font.name = lib.mkDefault "Monospace";
+      });
+    };
   };
 }
